@@ -136,7 +136,66 @@ open http://localhost:8080  # Or visit in browser
 
 ---
 
-## Running the Application
+## Demo Mode (No Kafka Required)
+
+The demo provides an interactive terminal-based visualization of the system without requiring Kafka. Perfect for demonstrations and as a foundation for building a UI.
+
+### Quick Demo
+
+```bash
+python demo.py
+```
+
+### Demo Options
+
+```bash
+# Short 30-second demo
+python demo.py --duration 30
+
+# More workers for better performance
+python demo.py --workers 5
+
+# Faster simulation (2x speed)
+python demo.py --speed 2
+
+# Higher event rate (stress test)
+python demo.py --rate 1.5
+
+# Combined example
+python demo.py --duration 60 --workers 4 --speed 1.5 --rate 1.0
+```
+
+### Demo Display
+
+The demo shows real-time:
+- **Wedding time** and simulation progress
+- **Statistics**: total, handled, expired events and stress level
+- **Priority breakdown**: events by HIGH/MEDIUM/LOW
+- **Team status**: phase (READY/BUSY), workers, queue size, performance
+- **Activity log**: recent events and actions
+- **Final report**: analysis and recommendations
+
+```
+======================================================================
+           MARRY ME - Wedding Event Management Demo
+======================================================================
+
+  Wedding Time: 01:30  |  Real Time: 45s / 60s  [=================     ]
+
+  Statistics:
+    Total Events:   42  |  Handled:   35  |  Expired:    3  |  Pending:    4
+    Success Rate: 83.3%   [Stress: MEDIUM]
+
+  Team Status:
+  ------------------------------------------------------------------
+  Security   READY | Workers: 1/3 working  | Queue:   2 | Done:   8 | Expired:   0
+  Clean Up   BUSY  | Workers: 0/3 working  | Queue:   1 | Done:  12 | Expired:   1
+  ...
+```
+
+---
+
+## Running the Full Application (With Kafka)
 
 ### Quick Start (Random Events)
 
@@ -282,12 +341,13 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 
 ```
 englab4/
+├── demo.py                # Interactive demo (no Kafka required)
+├── simulation.py          # Full simulation with Kafka
 ├── config.py              # Configuration constants and enums
 ├── models.py              # Data models (Event, Worker, Team, Stats)
 ├── coordinator.py         # Event validation and forwarding
 ├── organizer.py           # Event routing to teams
 ├── team.py                # Team management and worker dispatch
-├── simulation.py          # Main simulation orchestrator
 ├── logger.py              # Event logging and monitoring
 ├── requirements.txt       # Python dependencies
 ├── pytest.ini             # Pytest configuration
@@ -298,7 +358,7 @@ englab4/
 │   ├── events_*.jsonl     # Event log (JSON Lines format)
 │   ├── stats_*.json       # Final statistics
 │   └── simulation_*.log   # Full simulation log
-└── tests/                 # Test suite
+└── tests/                 # Test suite (150 tests, 87% coverage)
     ├── __init__.py
     ├── conftest.py        # Shared fixtures
     ├── test_config.py     # Config tests
