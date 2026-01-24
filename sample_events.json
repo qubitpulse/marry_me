@@ -1,0 +1,102 @@
+[
+  {
+    "id": "evt-001",
+    "event_type": "not_on_list",
+    "priority": "HIGH",
+    "description": "Unknown guest trying to enter the venue",
+    "timestamp": "00:15",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-002",
+    "event_type": "dirty_table",
+    "priority": "LOW",
+    "description": "Table 3 has empty glasses piling up",
+    "timestamp": "00:30",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-003",
+    "event_type": "music",
+    "priority": "MEDIUM",
+    "description": "Guests requesting different music genre",
+    "timestamp": "01:00",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-004",
+    "event_type": "groom",
+    "priority": "HIGH",
+    "description": "Groom cannot find the wedding rings",
+    "timestamp": "01:30",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-005",
+    "event_type": "bad_food",
+    "priority": "MEDIUM",
+    "description": "Guest complaining about cold appetizers",
+    "timestamp": "02:00",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-006",
+    "event_type": "brawl",
+    "priority": "HIGH",
+    "description": "Two guests arguing loudly near the bar",
+    "timestamp": "02:30",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-007",
+    "event_type": "feeling_ill",
+    "priority": "HIGH",
+    "description": "Elderly guest feeling dizzy",
+    "timestamp": "03:00",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-008",
+    "event_type": "broken_items",
+    "priority": "MEDIUM",
+    "description": "Champagne glass shattered on the floor",
+    "timestamp": "03:30",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-009",
+    "event_type": "bride",
+    "priority": "HIGH",
+    "description": "Bride needs help with dress adjustment",
+    "timestamp": "04:00",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  },
+  {
+    "id": "evt-010",
+    "event_type": "dirty_floor",
+    "priority": "LOW",
+    "description": "Cake crumbs scattered near dessert table",
+    "timestamp": "04:30",
+    "created_at": 0,
+    "handled": false,
+    "expired": false
+  }
+]
