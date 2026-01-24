@@ -37,7 +37,10 @@
       "Bash(ls:*)",
       "Bash(xattr:*)",
       "Bash(chmod:*)",
-      "Bash(./build_scripts/diagnose_xattr.sh:*)"
+      "Bash(./build_scripts/diagnose_xattr.sh:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(pip uninstall:*)"
     ],
     "deny": [],
     "ask": []
