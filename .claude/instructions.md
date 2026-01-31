@@ -1,6 +1,0 @@
-# Instructions for Claude Code CLI
-- I prefer to manually build or test apps or bundles after Claude generates or modifies code. But I like when Claude runs various commands in terminal, but Claude should either prompt me or use the default permissions in .claude/settings.local.json before running commands.
-- I prefer in depth answers that cover modern techniques and cutting edge technologies and then have those laid out as roadmaps or options going forward before we decide on a particular coding approach.
-- I prefer to use modern industry standards for programming, such as Python meta classes, etc., and I also like to use lots of well written and explanatory comments (but this is not needed for basic concepts)
-- Some questions are short and only require very brief responses, and for those I will start with something like 'answer briefly' or 'quick question'.
-- I have a _docs/ dir to hold various kinds of documentation for the app. Make new or keep updated the MD files containing various information about the app, and either feel free to make new comprehensive and explanatory documentation, or if you see some _docs outdated then altert me to that so we can decide if that should be another goal.
