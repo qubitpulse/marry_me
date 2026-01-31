@@ -199,9 +199,41 @@ class WeddingSimulation:
         )
 
     def load_events_from_file(self, filepath: str) -> list[dict]:
-        """Load events from a JSON file."""
+        """Load events from a JSON file, normalizing external dataset formats."""
         with open(filepath, "r") as f:
-            return json.load(f)
+            raw_events = json.load(f)
+
+        normalized = []
+        for event_data in raw_events:
+            normalized.append(self._normalize_event_data(event_data))
+        return normalized
+
+    @staticmethod
+    def _normalize_event_data(event_data: dict) -> dict:
+        """Normalize event data from external datasets (e.g. QwasarSV format)."""
+        data = dict(event_data)
+
+        # Normalize priority: "High" -> "HIGH", "Medium" -> "MEDIUM", etc.
+        if "priority" in data:
+            data["priority"] = data["priority"].upper()
+
+        # Fix known typos from reference datasets
+        if data.get("event_type") == "broken_itens":
+            data["event_type"] = "broken_items"
+
+        # Ensure id is a string
+        if "id" in data:
+            data["id"] = str(data["id"])
+
+        # Provide defaults for fields absent in external datasets
+        if "created_at" not in data:
+            data["created_at"] = 0
+        if "handled" not in data:
+            data["handled"] = False
+        if "expired" not in data:
+            data["expired"] = False
+
+        return data
 
     def inject_event(self, event: Event):
         """Send an event to the system."""

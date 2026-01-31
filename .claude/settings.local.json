@@ -41,7 +41,8 @@
       "Bash(python3 -m pytest:*)",
       "Bash(pip install:*)",
       "Bash(pip uninstall:*)",
-      "Bash(timeout 8 python3:*)"
+      "Bash(timeout 8 python3:*)",
+      "Bash(gh api:*)"
     ],
     "deny": [],
     "ask": []

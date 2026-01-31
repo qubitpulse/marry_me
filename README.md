@@ -1,4 +1,5 @@
 # Marry Me - Wedding Event Management System
+https://github.com/QwasarSV/eng_labs_marry_me
 
 An event-driven application for managing wedding events using Apache Kafka and Python multiprocessing. Built as part of the Qwasar Master's of Science in Computer Science program.
 
@@ -113,25 +114,220 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Start Kafka Infrastructure
+---
 
-```bash
-docker-compose up -d
+## Apache Kafka Setup (Docker)
+
+### What is Kafka?
+
+Apache Kafka is a distributed message broker that enables event-driven communication between components. In this project:
+
+```
+┌─────────────┐         ┌─────────────┐         ┌─────────────┐
+│ Coordinator │──publish─▶│    Kafka    │◀─consume──│    Team     │
+│  (Producer) │         │   (Broker)  │         │  (Consumer) │
+└─────────────┘         └─────────────┘         └─────────────┘
 ```
 
-This starts:
-- **Zookeeper** on port 2181
-- **Kafka** on port 9092
-- **Kafka UI** on port 8080 (web interface)
+- **Producers** send messages to **topics**
+- **Consumers** subscribe to topics and process messages
+- **Topics** are like channels/queues that hold messages
 
-### 5. Verify Kafka is Running
+### Kafka Topics in This Project
+
+| Topic | Purpose |
+|-------|---------|
+| `wedding-events` | Raw events from simulation |
+| `validated-events` | Events validated by coordinators |
+| `team-security` | Events for Security team |
+| `team-cleanup` | Events for Clean Up team |
+| `team-catering` | Events for Catering team |
+| `team-officiant` | Events for Officiant team |
+| `team-waiters` | Events for Waiters team |
+
+### Docker Compose Services
+
+The `docker-compose.yml` starts three containers:
+
+```yaml
+┌─────────────────────────────────────────────────────────────┐
+│                     Docker Containers                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │  Zookeeper  │    │    Kafka    │    │  Kafka UI   │     │
+│  │  Port 2181  │◀───│  Port 9092  │    │  Port 8080  │     │
+│  │             │    │             │    │  (Web GUI)  │     │
+│  └─────────────┘    └─────────────┘    └─────────────┘     │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Zookeeper** | 2181 | Kafka cluster coordination |
+| **Kafka** | 9092 | Message broker |
+| **Kafka UI** | 8080 | Web interface to view topics/messages |
+
+### Start Kafka
 
 ```bash
-# Check containers are running
+# Start all containers in background
+docker-compose up -d
+
+# View startup logs
+docker-compose logs -f
+
+# Check all containers are running
+docker-compose ps
+```
+
+Expected output:
+```
+NAME                  STATUS    PORTS
+marry-me-kafka        running   0.0.0.0:9092->9092/tcp
+marry-me-kafka-ui     running   0.0.0.0:8080->8080/tcp
+marry-me-zookeeper    running   0.0.0.0:2181->2181/tcp
+```
+
+### Verify Kafka is Working
+
+```bash
+# Check Kafka is accepting connections
+docker exec marry-me-kafka kafka-topics --bootstrap-server localhost:9092 --list
+```
+
+Or open the Kafka UI in your browser:
+```
+http://localhost:8080
+```
+
+### Stop Kafka
+
+```bash
+# Stop containers (keeps data)
+docker-compose stop
+
+# Stop and remove containers (keeps data volumes)
+docker-compose down
+
+# Stop and remove everything including data
+docker-compose down -v
+```
+
+---
+
+## End-to-End Walkthrough
+
+### Complete Setup and Run (Copy-Paste Ready)
+
+```bash
+# 1. Navigate to project
+cd /path/to/englab4
+
+# 2. Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Start Kafka (wait ~30 seconds for full startup)
+docker-compose up -d
+sleep 30
+
+# 5. Verify Kafka is running
 docker-compose ps
 
-# View Kafka UI
-open http://localhost:8080  # Or visit in browser
+# 6. Run the simulation
+python simulation.py
+```
+
+### What Happens When You Run
+
+```
+┌─ STARTUP ──────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  1. Kafka topics are created automatically                                  │
+│  2. Coordinator processes start (validate events)                          │
+│  3. Organizer process starts (route events)                                │
+│  4. Team processes start (handle events)                                   │
+│     - Security (3 workers)                                                 │
+│     - Clean Up (3 workers)                                                 │
+│     - Catering (3 workers)                                                 │
+│     - Officiant (3 workers)                                                │
+│     - Waiters (3 workers)                                                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─ SIMULATION (6 minutes) ───────────────────────────────────────────────────┐
+│                                                                             │
+│  Every ~2 seconds:                                                         │
+│    1. Random event generated (brawl, dirty_table, music, etc.)            │
+│    2. Event sent to Kafka topic "wedding-events"                          │
+│    3. Coordinator validates → sends to "validated-events"                 │
+│    4. Organizer routes → sends to "team-{name}" topic                     │
+│    5. Team consumes → assigns to idle worker (if in idle phase)           │
+│    6. Worker handles event (3 seconds)                                     │
+│    7. If deadline missed → event expires → stress++                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─ RESULTS ──────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  ============================================================              │
+│  WEDDING SIMULATION COMPLETE                                               │
+│  ============================================================              │
+│    total_events: 180                                                       │
+│    handled_events: 165                                                     │
+│    expired_events: 15                                                      │
+│    stress_level: 15                                                        │
+│    success_rate: 91.7%                                                     │
+│  ============================================================              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Monitor in Real-Time
+
+While simulation runs, open another terminal:
+
+```bash
+# Watch Kafka UI (see messages flowing through topics)
+open http://localhost:8080
+
+# View simulation logs
+tail -f logs/simulation_*.log
+
+# Watch event log (JSON lines)
+tail -f logs/events_*.jsonl
+```
+
+### Quick Test (30 seconds)
+
+For a quick test without waiting 6 minutes:
+
+```bash
+# Run demo mode (no Kafka needed, instant feedback)
+python demo.py --duration 30
+
+# Or with Kafka, use high speed + high event rate
+python simulation.py --event-rate 2.0
+```
+
+### Cleanup After Running
+
+```bash
+# Stop Kafka containers
+docker-compose down
+
+# Remove log files
+rm -rf logs/
+
+# Deactivate virtual environment
+deactivate
 ```
 
 ---
@@ -197,9 +393,15 @@ The demo shows real-time:
 
 ## Running the Full Application (With Kafka)
 
+> **Prerequisite**: Kafka must be running. See [Apache Kafka Setup](#apache-kafka-setup-docker) above.
+
 ### Quick Start (Random Events)
 
 ```bash
+# Make sure Kafka is running first!
+docker-compose ps  # Should show 3 containers running
+
+# Run simulation
 python simulation.py
 ```
 
@@ -211,14 +413,44 @@ This runs a 6-minute simulation generating random events at ~0.5 events/second.
 # More workers and higher event rate
 python simulation.py --workers 5 --event-rate 1.0
 
-# Multiple coordinators
+# Multiple coordinators (for load distribution)
 python simulation.py --coordinators 3 --workers 4
+
+# Stress test (lots of events)
+python simulation.py --workers 2 --event-rate 2.0
 ```
 
-### Using Predefined Events
+### Using Predefined Events (Datasets)
+
+Five datasets of 1000 events each are included (sourced from the [QwasarSV reference repo](https://github.com/QwasarSV/eng_labs_marry_me)). The loader automatically normalizes the external format (capitalized priorities, typos, etc.) to the internal format.
 
 ```bash
-python simulation.py --events-file sample_events.json
+# Use one of the included datasets
+python simulation.py --events-file dataset_1.json
+python simulation.py --events-file dataset_3.json
+
+# Generate a new dataset
+python generate_datasets.py -o my_dataset.json -n 500
+```
+
+You can also create a custom event file. Both the internal format and the QwasarSV format are accepted:
+```json
+[
+  {
+    "id": 1,
+    "event_type": "brawl",
+    "priority": "High",
+    "description": "Fight at the open bar",
+    "timestamp": "01:30"
+  },
+  {
+    "id": 2,
+    "event_type": "bride",
+    "priority": "High",
+    "description": "Bride needs dress adjustment",
+    "timestamp": "02:00"
+  }
+]
 ```
 
 ### Command Line Options
@@ -230,12 +462,54 @@ python simulation.py --events-file sample_events.json
 | `--events-file` | None | JSON file with predefined events |
 | `--event-rate` | 0.5 | Events per second (random mode) |
 
+### Process Architecture
+
+When you run `simulation.py`, it spawns multiple processes:
+
+```
+simulation.py (main process)
+    │
+    ├── Coordinator-0 (process) ─── validates events
+    ├── Coordinator-1 (process) ─── validates events
+    │
+    ├── Organizer (process) ─────── routes events to teams
+    │
+    ├── Team-Security (process)
+    │       ├── Worker-0 (thread)
+    │       ├── Worker-1 (thread)
+    │       └── Worker-2 (thread)
+    │
+    ├── Team-CleanUp (process)
+    │       └── ... workers
+    │
+    ├── Team-Catering (process)
+    │       └── ... workers
+    │
+    ├── Team-Officiant (process)
+    │       └── ... workers
+    │
+    └── Team-Waiters (process)
+            └── ... workers
+
+Total: 1 main + 2 coordinators + 1 organizer + 5 teams = 9 processes
+```
+
 ### Stopping the Simulation
 
 Press `Ctrl+C` to stop gracefully. The simulation will:
 1. Stop generating new events
-2. Allow current events to complete
-3. Print final statistics
+2. Allow current events to complete (20 second drain period)
+3. Terminate all worker processes
+4. Print final statistics
+
+### Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| `NoBrokersAvailable` | Kafka not running | Run `docker-compose up -d` |
+| `Connection refused :9092` | Kafka still starting | Wait 30 seconds, try again |
+| No events processed | Organizer not routing | Check Kafka UI for messages |
+| All events expiring | Workers too slow | Increase `--workers` |
 
 ---
 
@@ -352,13 +626,18 @@ englab4/
 ├── requirements.txt       # Python dependencies
 ├── pytest.ini             # Pytest configuration
 ├── docker-compose.yml     # Kafka infrastructure
-├── sample_events.json     # Sample event data for testing
+├── dataset_1.json         # 1000-event dataset (from QwasarSV reference repo)
+├── dataset_2.json         # 1000-event dataset
+├── dataset_3.json         # 1000-event dataset
+├── dataset_4.json         # 1000-event dataset
+├── dataset_5.json         # 1000-event dataset
+├── generate_datasets.py   # Dataset generator script
 ├── README.md              # This file
 ├── logs/                  # Generated log files (created at runtime)
 │   ├── events_*.jsonl     # Event log (JSON Lines format)
 │   ├── stats_*.json       # Final statistics
 │   └── simulation_*.log   # Full simulation log
-└── tests/                 # Test suite (150 tests, 87% coverage)
+└── tests/                 # Test suite (153 tests)
     ├── __init__.py
     ├── conftest.py        # Shared fixtures
     ├── test_config.py     # Config tests

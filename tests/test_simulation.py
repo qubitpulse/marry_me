@@ -197,6 +197,67 @@ class TestWeddingSimulationEventFile:
             os.unlink(temp_path)
 
 
+class TestNormalizeEventData:
+    """Tests for normalizing external dataset formats."""
+
+    def test_normalize_qwasar_format(self):
+        """Should normalize QwasarSV dataset format to internal format."""
+        raw = {
+            "id": 42,
+            "event_type": "broken_itens",
+            "priority": "High",
+            "description": "Broken glass",
+            "timestamp": "02:30",
+        }
+        result = WeddingSimulation._normalize_event_data(raw)
+        assert result["id"] == "42"
+        assert result["event_type"] == "broken_items"
+        assert result["priority"] == "HIGH"
+        assert result["created_at"] == 0
+        assert result["handled"] is False
+        assert result["expired"] is False
+
+    def test_normalize_already_internal_format(self):
+        """Should leave already-normalized data unchanged."""
+        raw = {
+            "id": "evt-001",
+            "event_type": "brawl",
+            "priority": "HIGH",
+            "description": "Fight",
+            "timestamp": "01:00",
+            "created_at": 100.0,
+            "handled": False,
+            "expired": False,
+        }
+        result = WeddingSimulation._normalize_event_data(raw)
+        assert result["id"] == "evt-001"
+        assert result["priority"] == "HIGH"
+        assert result["created_at"] == 100.0
+
+    def test_load_qwasar_format_from_file(self):
+        """Should load and normalize QwasarSV-format events from file."""
+        sim = WeddingSimulation()
+        events_data = [
+            {"id": 1, "event_type": "broken_itens", "priority": "Medium",
+             "description": "Broken glass", "timestamp": "03:00"},
+            {"id": 2, "event_type": "brawl", "priority": "Low",
+             "description": "Bar fight", "timestamp": "04:00"},
+        ]
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(events_data, f)
+            temp_path = f.name
+
+        try:
+            loaded = sim.load_events_from_file(temp_path)
+            assert len(loaded) == 2
+            assert loaded[0]["event_type"] == "broken_items"
+            assert loaded[0]["priority"] == "MEDIUM"
+            assert loaded[0]["id"] == "1"
+            assert loaded[1]["priority"] == "LOW"
+        finally:
+            os.unlink(temp_path)
+
+
 class TestWeddingSimulationStats:
     """Tests for statistics collection."""
 
