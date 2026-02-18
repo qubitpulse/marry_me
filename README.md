@@ -95,10 +95,11 @@ python3 --version
 
 ## Installation
 
-### 1. Clone or Navigate to the Project
+### 1. Clone the Project
 
 ```bash
-cd /path/to/englab4
+git clone https://github.com/QwasarSV/eng_labs_marry_me.git
+cd eng_labs_marry_me
 ```
 
 ### 2. Create a Virtual Environment (Recommended)
@@ -219,11 +220,14 @@ docker-compose down -v
 
 ## End-to-End Walkthrough
 
-### Complete Setup and Run (Copy-Paste Ready)
+### Quick Verify (No Kafka Required)
+
+The fastest way to confirm everything works. Copy-paste ready:
 
 ```bash
-# 1. Navigate to project
-cd /path/to/englab4
+# 1. Clone and enter project
+git clone https://github.com/QwasarSV/eng_labs_marry_me.git
+cd eng_labs_marry_me
 
 # 2. Create and activate virtual environment
 python3 -m venv venv
@@ -232,14 +236,26 @@ source venv/bin/activate
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Start Kafka (wait ~30 seconds for full startup)
+# 4. Run the test suite (should see all tests pass)
+pytest
+
+# 5. Run a 30-second demo (no Kafka needed)
+python demo.py --duration 30
+```
+
+### Full Simulation (Requires Kafka)
+
+Once you've verified the basics above, start Kafka and run the real simulation:
+
+```bash
+# 1. Start Kafka (wait ~30 seconds for full startup)
 docker-compose up -d
 sleep 30
 
-# 5. Verify Kafka is running
+# 2. Verify Kafka is running
 docker-compose ps
 
-# 6. Run the simulation
+# 3. Run the simulation
 python simulation.py
 ```
 
@@ -307,7 +323,7 @@ tail -f logs/events_*.jsonl
 
 ### Quick Test (30 seconds)
 
-For a quick test without waiting 6 minutes:
+For a quick test without waiting 6 minutes (see also the [Quick Verify](#quick-verify-no-kafka-required) walkthrough above):
 
 ```bash
 # Run demo mode (no Kafka needed, instant feedback)
@@ -615,6 +631,7 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 
 ```
 englab4/
+├── .gitignore             # Git ignore rules
 ├── demo.py                # Interactive demo (no Kafka required)
 ├── simulation.py          # Full simulation with Kafka
 ├── config.py              # Configuration constants and enums
@@ -637,7 +654,7 @@ englab4/
 │   ├── events_*.jsonl     # Event log (JSON Lines format)
 │   ├── stats_*.json       # Final statistics
 │   └── simulation_*.log   # Full simulation log
-└── tests/                 # Test suite (153 tests)
+└── tests/                 # Test suite
     ├── __init__.py
     ├── conftest.py        # Shared fixtures
     ├── test_config.py     # Config tests
@@ -778,7 +795,7 @@ lsof -i :9092
 
 ```bash
 # Make sure you're in the project directory
-cd /path/to/englab4
+cd /path/to/eng_labs_marry_me
 
 # Ensure virtual environment is activated
 source venv/bin/activate
