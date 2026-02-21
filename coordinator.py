@@ -39,7 +39,7 @@ class Coordinator:
             KAFKA_TOPICS["events"],
             bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-            group_id=f"coordinator-{self.coordinator_id}",
+            group_id="coordinators",
             auto_offset_reset="earliest",
         )
         logger.info(f"Coordinator {self.coordinator_id} connected to Kafka")
