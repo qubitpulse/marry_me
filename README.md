@@ -3,6 +3,32 @@ https://github.com/QwasarSV/eng_labs_marry_me
 
 An event-driven application for managing wedding events using Apache Kafka and Python multiprocessing. Built as part of the Qwasar Master's of Science in Computer Science program.
 
+## Quick Start
+
+```bash
+# 1. Clone and set up
+git clone https://github.com/QwasarSV/eng_labs_marry_me.git
+cd eng_labs_marry_me
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# 2. Run tests (no Kafka needed)
+pytest
+
+# 3. Run the demo (no Kafka needed)
+python demo.py --duration 30
+
+# 4. Run the full simulation (requires Docker)
+docker-compose up -d       # start Kafka — wait ~30s for startup
+python simulation.py       # 6-minute wedding simulation
+docker-compose down        # stop Kafka when done
+```
+
+Open http://localhost:8080 while the simulation runs to monitor Kafka topics in the browser.
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
